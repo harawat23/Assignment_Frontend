@@ -1,0 +1,37 @@
+<div>
+  <h1>Fetch Device by ID</h1>
+
+  <form [formGroup]="deviceForm" (ngSubmit)="fetchDeviceById()">
+    <div>
+      <label for="deviceId">Device ID:</label>
+      <input
+        id="deviceId"
+        type="text"
+        formControlName="deviceId"
+        placeholder="Enter Device ID"
+      />
+    </div>
+
+    <div *ngIf="deviceForm.controls['deviceId'].invalid && deviceForm.controls['deviceId'].touched" class="error">
+      <small *ngIf="deviceForm.controls['deviceId'].errors?.required">Device ID is required.</small>
+      <small *ngIf="deviceForm.controls['deviceId'].errors?.pattern">Invalid Device ID format.</small>
+    </div>
+
+    <button type="submit" [disabled]="deviceForm.invalid">Fetch Device</button>
+  </form>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+  
+  <div *ngIf="deviceData">
+    <h2>Device Details</h2>
+    <p><strong>Device Name:</strong> {{ deviceData.deviceName }}</p>
+    <p><strong>Device Type:</strong> {{ deviceData.deviceType }}</p>
+    <p><strong>Building Name:</strong> {{ deviceData.buildingName }}</p>
+    <p><strong>Created At:</strong> {{ deviceData.createdAt }}</p>
+    <p><strong>Part Number:</strong> {{ deviceData.partNumber }}</p>
+    <p><strong>Updated At:</strong> {{ deviceData.updatedAt }}</p>
+    <p><strong>Number of Shelf Positions:</strong> {{ deviceData.numberOfShelfPositions }}</p>
+  </div>
+</div>
