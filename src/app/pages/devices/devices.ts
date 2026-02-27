@@ -1,41 +1,45 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DevicesService } from '../../services/devices.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DeviceModel } from '../../models/Device';
+import { ShelfPosition } from '../../models/ShelfPosition';
 
 @Component({
   selector: 'app-devices',
+  standalone: true,
   templateUrl: './devices.html',
-  styleUrl: './devices.css',
+  styleUrls: ['./devices.css'],
+  imports: [CommonModule, FormsModule],
 })
-export class Devices{
-  private deviceService: DevicesService = inject(DevicesService);
-  public response: WritableSignal<string> = signal('');
+export class Devices {
+  deviceData = signal<DeviceModel | null>(null);
+  errorMessage = "";
+  deviceId = signal<string>("");
+  loading = signal<boolean>(false);
+  shelfPositions = signal<ShelfPosition[] | null>(null);
 
-  deviceForm: FormGroup; 
-  deviceData: any = null; 
-  errorMessage: string = '';
+  constructor(private devicesService: DevicesService) { }
 
-  constructor(private fb: FormBuilder, private devicesService: DevicesService) {
-    this.deviceForm = this.fb.group({
-      deviceId: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9_-]*$')]],
+  onSubmit() {
+    this.loading.set(true);
+    this.devicesService.getDeviceById(this.deviceId()).subscribe({
+      next: (result: DeviceModel) => {
+        console.log(result);
+        this.deviceData.set(result);
+        this.loading.set(false);
+        this.shelfPositions.set(this.deviceData()?.shelfPosition || null);
+      },
+      error: (error) => {
+        console.error("Error occurred:", error);
+        this.errorMessage = "Failed to fetch device data.";
+        this.loading.set(false);
+      },
     });
-   }
+  }
 
-  fetchDeviceById() {
-    if (this.deviceForm.valid) {
-      const deviceId = this.deviceForm.value.deviceId;
-      this.devicesService.getDeviceById(deviceId).subscribe(
-        (response: any) => {
-          this.deviceData = response; 
-          console.log('Device fetched successfully:', this.deviceData);
-        },
-        (error) => {
-          this.errorMessage = 'Failed to fetch device.';
-          console.error('Error fetching device:', error);
-        }
-      );
-    } else {
-      this.errorMessage = 'Invalid Device ID. Please check and try again.';
-    }
+  setValue(val: string) {
+    this.deviceId.set(val);
+    console.log(this.deviceId());
   }
 }

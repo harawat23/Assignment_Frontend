@@ -12,7 +12,8 @@ export const API_ENDPOINTS ={
         byId: (id:string)=> `${API_BASE_URL}/shelf/${id}`,
         save: `${API_BASE_URL}/shelf/save`,
         deleteById: (id: string)=>`${API_BASE_URL}/shelf/delete/${id}`,
-        updateById: (id:string)=>`${API_BASE_URL}/shelf/update/${id}`
+        updateById: (id:string)=>`${API_BASE_URL}/shelf/update/${id}`,
+        getShelfs:(pageNum:number)=>`${API_BASE_URL}/shelf/fetchAll/${pageNum}`
     },
     shelfPosition:{
         byId:(id:number)=>`${API_BASE_URL}/shelfposition/${id}`,

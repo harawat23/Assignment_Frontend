@@ -1,4 +1,4 @@
-export interface Shelf{
+export interface ShelfModel{
     partNumber: string,
     shelfName: string,
     shelfId: string,
