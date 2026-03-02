@@ -1,14 +1,14 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { DeviceModel } from '../../models/Device';
-import { ShelfModel } from '../../models/Shelf';
-import { DevicesService } from '../../services/devices.service'; import { ActivatedRoute, Router } from '@angular/router';
-;
+import { DevicesService } from '../../services/devices.service';
+import { ActivatedRoute } from '@angular/router';
+import { ShelfPosition } from '../../models/ShelfPosition';
+import { ShelfPositionService } from '../../services/shelfposition.service';
 
 @Component({
   selector: 'app-device-update',
-  imports: [],
   templateUrl: './device-summary.html',
-  styleUrl: './device-summary.css',
+  styleUrls: ['./device-summary.css'],
 })
 export class DeviceSummary {
   newDevice = signal({
@@ -21,71 +21,69 @@ export class DeviceSummary {
   deviceId = '';
 
   device = signal<DeviceModel | null>(null);
+  shelfPositions = signal<ShelfPosition[] | null>(null);
+  getForm = signal(false);
+  shelfId = signal('');
 
-  constructor(private deviceService: DevicesService, public router: ActivatedRoute) { }
+  constructor(
+    private deviceService: DevicesService,
+    private shelfPositionService: ShelfPositionService,
+    private router: ActivatedRoute
+  ) { }
 
   validateDeviceForm(): boolean {
-    const errors: any = {};
     let isValid = true;
 
     if (!this.newDevice().deviceName.trim()) {
-      errors.deviceName = 'Device Name is required';
+      console.error('Device Name is required');
       isValid = false;
     }
 
     if (!this.newDevice().deviceType.trim()) {
-      errors.deviceType = 'Device Type is required';
+      console.error('Device Type is required');
       isValid = false;
     }
 
     if (!this.newDevice().buildingName.trim()) {
-      errors.buildingName = 'Building Name is required';
+      console.error('Building Name is required');
       isValid = false;
     }
 
     if (!this.newDevice().partNumber.trim()) {
-      errors.partNumber = 'Part Number is required';
+      console.error('Part Number is required');
       isValid = false;
     }
+
     return isValid;
   }
 
   updateDevice() {
-    if (this.validateDeviceForm() && (this.device() !== null)) {
-      this.deviceService.updateDevice(this.device()?.deviceId as string, this.newDevice().deviceName, this.newDevice().deviceType,
-        this.newDevice().buildingName, this.newDevice().partNumber).subscribe({
-          next: (result: DeviceModel) => {
-            console.log("device updated successfully");
-            console.log(result);
-          }, error: (error) => {
-            console.log(error);
-          }
-        });
+    if (this.validateDeviceForm() && this.device() !== null) {
+      const deviceId = this.device()?.deviceId as string;
+      const { deviceName, deviceType, buildingName, partNumber } = this.newDevice();
 
+      this.deviceService.updateDevice(deviceId, deviceName, deviceType, buildingName, partNumber).subscribe({
+        next: (result: DeviceModel) => {
+          console.log('Device updated successfully:', result);
+          this.device.set(result);
+        },
+        error: (error) => {
+          console.error('Error updating device:', error);
+        },
+      });
     } else {
-      console.log(this.newDevice());
+      console.error('Validation failed or device is null:', this.newDevice());
     }
   }
 
   ngOnInit() {
     this.router.params.subscribe({
       next: (params) => {
-        console.log(params);
         const deviceId = params['deviceId'];
         if (deviceId) {
-          this.deviceService.getDeviceById(deviceId).subscribe({
-            next: (d: DeviceModel) => {
-              this.device.set(d);
-              console.log(JSON.stringify(d));
-              this.newDevice().deviceName = this.device()?.deviceName as string;
-              this.newDevice().deviceType = this.device()?.deviceType as string;
-              this.newDevice().buildingName = this.device()?.buildingName as string;
-              this.newDevice().partNumber = this.device()?.partNumber as string;
-            },
-            error: (error) => {
-              console.error('Error fetching device:', error);
-            },
-          });
+          this.deviceId = deviceId;
+          this.fetchDeviceDetails(deviceId);
+          console.log(this.device()?.shelfPosition)
         } else {
           console.error('deviceId parameter is missing');
         }
@@ -93,6 +91,107 @@ export class DeviceSummary {
       error: (error) => {
         console.error('Error fetching route params:', error);
       },
+    });
+  }
+
+  private fetchDeviceDetails(deviceId: string) {
+    this.deviceService.getDeviceById(deviceId).subscribe({
+      next: (device: DeviceModel) => {
+        this.device.set(device);
+        this.newDevice.set({
+          deviceName: device.deviceName,
+          deviceType: device.deviceType,
+          buildingName: device.buildingName,
+          partNumber: device.partNumber,
+        });
+        this.shelfPositions.set(device.shelfPosition || []);
+        console.log('Device details fetched:', device);
+      },
+      error: (error) => {
+        console.error('Error fetching device:', error);
+      },
+    });
+  }
+
+  attachShelf(index: number) {
+    console.log(this.shelfId());
+    if (this.shelfId() != '' && this.shelfPositions() !== null) {
+      const shelfPosition = this.shelfPositions() as ShelfPosition[];
+      this.shelfPositionService.attachShelf(shelfPosition[index].shelfPosId, this.shelfId()).subscribe({
+        next: (updatedShelf: ShelfPosition) => {
+
+          if (shelfPosition) {
+            shelfPosition[index] = updatedShelf;
+            this.shelfPositions.set([...shelfPosition]);
+          }
+          console.log('Shelf attached successfully:', updatedShelf);
+
+          this.getForm.set(false);
+        },
+        error: (error) => {
+          console.error('Error attaching shelf:', error);
+        },
+      });
+    }
+  }
+
+  detachShelf(index: number,shelf:string) {
+    const shelfPosition = this.shelfPositions() as ShelfPosition[];
+    this.shelfPositionService.detachShelf(shelfPosition[index].shelfPosId, shelf).subscribe({
+      next: (updatedShelf: ShelfPosition) => {
+
+        if (shelfPosition) {
+          shelfPosition[index] = updatedShelf;
+          this.shelfPositions.set([...shelfPosition]);
+        }
+        console.log('Shelf detached successfully:', updatedShelf);
+      },
+      error: (error) => {
+        console.error('Error attaching shelf:', error);
+      },
+    });
+  }
+
+  addShelfPosition(){
+    if (this.device()!==null){
+      const id=this.device()?.deviceId as string;
+      this.shelfPositionService.addShelfPosition(id).subscribe({
+        next:(sp:ShelfPosition)=>{
+          const shelfPosition=this.shelfPositions() as ShelfPosition [];
+          shelfPosition.push(sp);
+          this.shelfPositions.set([... shelfPosition]);
+          console.log(sp);
+
+          const d=this.device() as DeviceModel;
+          this.fetchDeviceDetails(d.deviceId);
+        },
+        error:(error)=>{
+          console.log("failed to add device : ",error);
+        }
+      });
+    }else{
+      console.log("device is null");
+    }
+  }
+  deleteShelf(index:number){
+    const shelfPosition=this.shelfPositions() as ShelfPosition[];
+    const del=shelfPosition[index];
+    const d=this.device() as DeviceModel;
+
+    this.shelfPositionService.deleteShelf(shelfPosition[index].shelfPosId).subscribe({
+      next:(successfully:Boolean)=>{
+        if (!successfully){
+          console.log("data deleted successfully")
+          this.fetchDeviceDetails(d.deviceId);
+
+          const s=this.device()?.shelfPosition as ShelfPosition[];
+
+          this.shelfPositions.set([... s]);
+        }
+      },
+      error:(error)=>{
+        console.log("failed to delete : ",error);
+      }
     });
   }
 }

@@ -11,14 +11,14 @@
                     <div class="form-group mb-3">
                         <label for="deviceIdInput" class="form-label">Device ID</label>
                         <input type="text" id="deviceIdInput" class="form-control"
-                            [value]="this.device()?.deviceId  || '' " readonly />
+                            [value]="this.device()?.deviceId || ''" readonly />
                     </div>
                 </td>
                 <td>
                     <div class="form-group mb-3">
-                        <label for="createdAt" class="form-label">createdAt</label>
+                        <label for="createdAt" class="form-label">Created At</label>
                         <input type="text" id="deviceCreatedAt" class="form-control"
-                            [value]="this.device()?.createdAt || '' " readonly />
+                            [value]="this.device()?.createdAt || ''" readonly />
                     </div>
                 </td>
             </tr>
@@ -32,9 +32,9 @@
                 </td>
                 <td>
                     <div class="form-group mb-3">
-                        <label for="createdAt" class="form-label">updatedAt</label>
+                        <label for="updatedAt" class="form-label">Updated At</label>
                         <input type="text" id="deviceUpdatedAt" class="form-control"
-                            [value]="this.device()?.updatedAt  || '' " readonly />
+                            [value]="this.device()?.updatedAt || ''" readonly />
                     </div>
                 </td>
             </tr>
@@ -43,16 +43,16 @@
                     <div class="form-group mb-3">
                         <label for="deviceNameInput" class="form-label">Device Name</label>
                         <input type="text" id="deviceNameInput" class="form-control" placeholder="Enter Device Name"
-                            [value]="this.device()?.deviceName  || '' "
-                            (input)="this.newDevice().deviceName=$event.target.value" />
+                            [value]="this.device()?.deviceName || ''"
+                            (input)="this.newDevice().deviceName = $event.target.value" />
                     </div>
                 </td>
                 <td>
                     <div class="form-group mb-3">
                         <label for="deviceTypeInput" class="form-label">Device Type</label>
                         <input type="text" id="deviceTypeInput" class="form-control" placeholder="Enter Device Type"
-                            [value]="this.device()?.deviceType  || '' "
-                            (input)="this.newDevice().deviceType=$event.target.value" />
+                            [value]="this.device()?.deviceType || ''"
+                            (input)="this.newDevice().deviceType = $event.target.value" />
                     </div>
                 </td>
             </tr>
@@ -61,22 +61,122 @@
                     <div class="form-group mb-3">
                         <label for="buildingNameInput" class="form-label">Building Name</label>
                         <input type="text" id="buildingNameInput" class="form-control" placeholder="Enter Building Name"
-                            [value]="this.device()?.buildingName  || '' "
-                            (input)="this.newDevice().buildingName=$event.target.value" />
+                            [value]="this.device()?.buildingName || ''"
+                            (input)="this.newDevice().buildingName = $event.target.value" />
                     </div>
                 </td>
                 <td>
                     <div class="form-group mb-3">
                         <label for="partNumberInput" class="form-label">Part Number</label>
                         <input type="text" id="partNumberInput" class="form-control" placeholder="Enter Part Number"
-                            [value]="this.device()?.partNumber  || '' "
-                            (input)="this.newDevice().partNumber=$event.target.value" />
+                            [value]="this.device()?.partNumber || ''"
+                            (input)="this.newDevice().partNumber = $event.target.value" />
                     </div>
                 </td>
             </tr>
         </table>
     </div>
+
+
+    <div class="table-responsive">
+        <h2>Shelf Positions</h2>
+        <table class="table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Shelf Position ID</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Shelf ID</th>
+                    <th>Part Number</th>
+                    <th>Shelf Name</th>
+                    <th>Shelf Created At</th>
+                    <th>Shelf Updated At</th>
+                    <th>Attach/Detach Shelf</th>
+                </tr>
+            </thead>
+
+            @if(this.shelfPositions()!==null && this.shelfPositions()!==[]){
+            <tbody>
+                @for(shelf of this.shelfPositions() ; track $index){
+                <tr>
+                    <td>
+                        {{shelf.shelfPosId}}
+                    </td>
+                    <td>
+                        {{shelf.createdAt}}
+                    </td>
+                    <td>
+                        {{shelf.updatedAt}}
+                    </td>
+                    @if (shelf.shelfOutput && shelf.shelfOutput.shelfId){
+                    <td>
+                        {{shelf.shelfOutput.partNumber}}
+                    </td>
+                    <td>
+                        {{shelf.shelfOutput.shelfName}}
+                    </td>
+                    <td>
+                        {{shelf.shelfOutput.shelfName}}
+                    </td>
+                    <td>
+                        {{shelf.shelfOutput.createdAt}}
+                    </td>
+                    <td>
+                        {{shelf.shelfOutput.updatedAt}}
+                    </td>
+                    <td>
+                        <button (click)="detachShelf($index,shelf.shelfOutput.shelfId)">
+                            Detach Shelf
+                        </button>
+                    </td>
+                    <td>
+                        <button (click)="deleteShelf($index)">
+                            Delete Shelf
+                        </button>
+                    </td>
+                    }@else {
+                    <td style="color: red;">
+                        Not Connected
+                    </td>
+                    <td style="color: red;">
+                        Not Connected
+                    </td>
+                    <td style="color: red;">
+                        Not Connected
+                    </td>
+                    <td style="color: red;">
+                        Not Connected
+                    </td>
+                    <td style="color: red;">
+                        Not Connected
+                    </td>
+                    <td>
+                        <button (click)="this.getForm.set(true)">
+                            Attach Shelf
+                        </button>
+                        @if(getForm()){
+                        <input type="text" id="shelfId" class="form-control" placeholder="Enter ShelfId to attach"
+                            (input)="this.shelfId.set($event.target.value)">
+                        <button (click)="this.getForm.set(false)">Close</button>
+                        <button (click)="this.attachShelf($index)">Attach</button>
+                        }
+                    </td>
+                    <td>
+                        <button (click)="deleteShelf($index)">
+                            Delete Shelf
+                        </button>
+                    </td>
+                    }
+                </tr>
+                }
+            </tbody>
+            }
+
+        </table>
+    </div>
+
     <div style="text-align: center; margin-top: 2vh;">
         <button style="margin: 0 2vh;" (click)="updateDevice()">Update Device</button>
+        <button (click)="addShelfPosition()">Add Shelf Position</button>
     </div>
 </div>
