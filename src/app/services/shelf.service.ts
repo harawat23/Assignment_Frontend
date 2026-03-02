@@ -22,4 +22,8 @@ export class ShelfService {
     getDeviceById(id: string): Observable<ShelfModel> {
         return this.http.get<ShelfModel>(API_ENDPOINTS.shelf.byId(id));
     }
+
+    saveShelf(shelfName:string,partNumber:string):Observable<ShelfModel>{
+        return this.http.post<ShelfModel>(API_ENDPOINTS.shelf.save,{shelfName:shelfName,partNumber:partNumber});
+    }
 }

@@ -1,1 +1,124 @@
-<p>home works!</p>
+@if(deviceOrShelf() === "device") {
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="text-align: center;">Device List</h1>
+    <button style="margin-left: auto;" (click)="deviceOrShelf.set('shelf')">View Shelf</button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>deviceId</th>
+            <th>deviceType</th>
+            <th>buildingName</th>
+            <th>createdAt</th>
+            <th>updatedAt</th>
+            <th>partNumber</th>
+        </tr>
+        @for (device of deviceList(); track $index) {
+        <tr>
+            <td (click)="navigateToDeviceSummaryPage(device.deviceId)">{{device.deviceId}}</td>
+            <td>{{device.deviceType}}</td>
+            <td>{{device.buildingName}}</td>
+            <td>{{device.createdAt}}</td>
+            <td>{{device.updatedAt}}</td>
+            <td>{{device.partNumber}}</td>
+        </tr>
+        }
+    </table>
+</div>
+<button style="margin:3vh 0" (click)="this.saveDevice.set(true)">Create New Device</button>
+@if (saveDevice()){
+<div class="card" style="width:50%;">
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="deviceNameInput" class="form-label">Device Name</label>
+                        <input type="text" id="deviceNameInput" class="form-control" placeholder="Enter Device Name"
+                            [value]="this.newDevice.deviceName()"
+                            (input)="this.newDevice.deviceName.set($event.target.value)" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="deviceTypeInput" class="form-label">Device Type</label>
+                        <input type="text" id="deviceTypeInput" class="form-control" placeholder="enter device type"
+                            [value]="this.newDevice.deviceType()"
+                            (input)="this.newDevice.deviceType.set($event.target.value)" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="buildingNameInput" class="form-label">Building Name</label>
+                        <input type="text" id="buildingNameInput" class="form-control" placeholder="enter building name"
+                            [value]="this.newDevice.buildingName()"
+                            (input)="this.newDevice.buildingName.set($event.target.value)" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="partNumberInput" class="form-label">Part Number</label>
+                        <input type="text" id="partNumberInput" class="form-control" placeholder="enter part number"
+                            [value]="this.newDevice.partNumber()"
+                            (input)="this.newDevice.partNumber.set($event.target.value)" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <button style="margin: 0 2vh;" (click)="saveDeviceData()">
+            Save device
+        </button>
+        <button (click)="this.saveDevice.set(false)">Close</button>
+    </div>
+</div>
+}
+}@else if(deviceOrShelf() === "shelf") {
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="text-align: center;">Shelf List</h1>
+    <button style="margin-left: auto;" (click)="deviceOrShelf.set('device')">View Device</button>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>shelfId</th>
+            <th>shelfName</th>
+            <th>partNumber</th>
+            <th>createdAt</th>
+            <th>updatedAt</th>
+        </tr>
+        @for (shelf of shelfList(); track $index) {
+        <tr>
+            <td>{{shelf.shelfId}}</td>
+            <td>{{shelf.shelfName}}</td>
+            <td>{{shelf.partNumber}}</td>
+            <td>{{shelf.createdAt}}</td>
+            <td>{{shelf.updatedAt}}</td>
+        </tr>
+        }
+    </table>
+    <button (click)="this.saveShelf.set(true)">Create new Shelf</button>
+    @if(saveShelf()){
+    <div class="card" style="width:50%;">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="deviceNameInput" class="form-label">Device Name</label>
+                            <input type="text" id="deviceNameInput" class="form-control" placeholder="Enter Device Name"
+                                [value]="this.newShelf.shelfName()"
+                                (input)="this.newShelf.shelfName.set($event.target.value)" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="deviceTypeInput" class="form-label">Device Type</label>
+                            <input type="text" id="deviceTypeInput" class="form-control" placeholder="enter device type"
+                                [value]="this.newShelf.partNumber()"
+                                (input)="this.newShelf.partNumber.set($event.target.value)" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <button style="margin: 0 2vh;" (click)="saveShelfData()">
+                Save Shelf
+            </button>
+            <button (click)="this.saveShelf.set(false)">Close</button>
+        </div>
+    </div>
+    }
+</div>
+}

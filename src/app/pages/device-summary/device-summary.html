@@ -1,0 +1,82 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="text-align: center;">Device Summary</h1>
+</div>
+
+<div class="card" style="width: 80%; margin: 2vh auto; padding: 2vh; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+    <h2 style="text-align: center;">Device Details</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="deviceIdInput" class="form-label">Device ID</label>
+                        <input type="text" id="deviceIdInput" class="form-control"
+                            [value]="this.device()?.deviceId  || '' " readonly />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="createdAt" class="form-label">createdAt</label>
+                        <input type="text" id="deviceCreatedAt" class="form-control"
+                            [value]="this.device()?.createdAt || '' " readonly />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="numberOfShelvesInput" class="form-label">Number of Shelves</label>
+                        <input type="text" id="numberOfShelvesInput" class="form-control"
+                            [value]="this.device()?.numberOfShelfPositions || ''" readonly />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="createdAt" class="form-label">updatedAt</label>
+                        <input type="text" id="deviceUpdatedAt" class="form-control"
+                            [value]="this.device()?.updatedAt  || '' " readonly />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="deviceNameInput" class="form-label">Device Name</label>
+                        <input type="text" id="deviceNameInput" class="form-control" placeholder="Enter Device Name"
+                            [value]="this.device()?.deviceName  || '' "
+                            (input)="this.newDevice().deviceName=$event.target.value" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="deviceTypeInput" class="form-label">Device Type</label>
+                        <input type="text" id="deviceTypeInput" class="form-control" placeholder="Enter Device Type"
+                            [value]="this.device()?.deviceType  || '' "
+                            (input)="this.newDevice().deviceType=$event.target.value" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="buildingNameInput" class="form-label">Building Name</label>
+                        <input type="text" id="buildingNameInput" class="form-control" placeholder="Enter Building Name"
+                            [value]="this.device()?.buildingName  || '' "
+                            (input)="this.newDevice().buildingName=$event.target.value" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="partNumberInput" class="form-label">Part Number</label>
+                        <input type="text" id="partNumberInput" class="form-control" placeholder="Enter Part Number"
+                            [value]="this.device()?.partNumber  || '' "
+                            (input)="this.newDevice().partNumber=$event.target.value" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="text-align: center; margin-top: 2vh;">
+        <button style="margin: 0 2vh;" (click)="updateDevice()">Update Device</button>
+    </div>
+</div>

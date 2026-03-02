@@ -1,0 +1,25 @@
+<div class="card" style="width:50%;">
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <td>
+                    <div class="form-group mb-3">
+                        <label for="deviceNameInput" class="form-label">Device Name</label>
+                        <input type="text" id="deviceNameInput" class="form-control" placeholder="Enter Device Name"
+                            [value]="this.newShelf.shelfName()"
+                            (input)="this.newShelf.shelfName.set($event.target.value)" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="deviceTypeInput" class="form-label">Device Type</label>
+                        <input type="text" id="deviceTypeInput" class="form-control" placeholder="enter device type"
+                            [value]="this.newShelf.partNumber()"
+                            (input)="this.newShelf.partNumber.set($event.target.value)" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <button style="margin: 0 2vh;" (click)="saveShelfData()">
+            Save Shelf
+        </button>
+    </div>
+</div>

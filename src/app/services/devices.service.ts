@@ -8,17 +8,36 @@ import { DeviceModel } from '../models/Device';
   providedIn: 'root',
 })
 export class DevicesService {
-  private http:HttpClient;
+  private http: HttpClient;
 
-  constructor(http:HttpClient){
-    this.http=http;
+  constructor(http: HttpClient) {
+    this.http = http;
   }
 
-  getAllDevices(pageNum:number):Observable<DeviceModel[]>{
+  getAllDevices(pageNum: number): Observable<DeviceModel[]> {
     return this.http.get<DeviceModel[]>(API_ENDPOINTS.device.getDevices(pageNum));
   }
 
-  getDeviceById(id:string):Observable<DeviceModel>{
+  getDeviceById(id: string): Observable<DeviceModel> {
     return this.http.get<DeviceModel>(API_ENDPOINTS.device.byId(id));
+  }
+
+  saveDevices(deviceName: string, deviceType: string, buildingName: string, partNumber: string): Observable<DeviceModel> {
+    return this.http.post<DeviceModel>(API_ENDPOINTS.device.save, { deviceName: deviceName, deviceType: deviceType, buildingName: buildingName, partNumber: partNumber })
+  }
+
+  updateDevice(deviceId: string, deviceName: string, deviceType: string, buildingName: string, partNumber: string): Observable<DeviceModel> {
+    const requestBody = {
+      "deviceName":deviceName,
+      "deviceType":deviceType,
+      "buildingName":buildingName,
+      "partNumber":partNumber,
+    };
+
+    console.log('Request Body:', requestBody);
+
+    const headers = { 'Content-Type': 'application/json' };
+
+    return this.http.put<DeviceModel>(API_ENDPOINTS.device.updateById(deviceId), requestBody,{headers});
   }
 }
