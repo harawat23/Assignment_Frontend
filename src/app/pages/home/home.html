@@ -83,7 +83,7 @@
         </tr>
         @for (shelf of shelfList(); track $index) {
         <tr>
-            <td>{{shelf.shelfId}}</td>
+            <td (click)="navigateToShelfSummaryPage(shelf)">{{shelf.shelfId}}</td>
             <td>{{shelf.shelfName}}</td>
             <td>{{shelf.partNumber}}</td>
             <td>{{shelf.createdAt}}</td>

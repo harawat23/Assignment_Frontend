@@ -4,6 +4,7 @@ import { ShelfModel } from '../../models/Shelf';
 import { DevicesService } from '../../services/devices.service';
 import { ShelfService } from '../../services/shelf.service';
 import { Router } from '@angular/router';
+import { Shelf } from '../shelf/shelf';
 
 @Component({
   selector: 'app-home',
@@ -165,5 +166,9 @@ export class Home {
 
   navigateToDeviceSummaryPage(id:string){
     this.router.navigate(['/device-summary', id]);
+  }
+
+  navigateToShelfSummaryPage(shelf:ShelfModel){
+    this.router.navigate(['shelf-summary',shelf.shelfId]);
   }
 }

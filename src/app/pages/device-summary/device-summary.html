@@ -92,6 +92,7 @@
                     <th>Shelf Created At</th>
                     <th>Shelf Updated At</th>
                     <th>Attach/Detach Shelf</th>
+                    <th>Delete Shelf Position</th>
                 </tr>
             </thead>
 
@@ -163,7 +164,7 @@
                     </td>
                     <td>
                         <button (click)="deleteShelf($index)">
-                            Delete Shelf
+                            Delete Shelf Position
                         </button>
                     </td>
                     }
@@ -178,5 +179,6 @@
     <div style="text-align: center; margin-top: 2vh;">
         <button style="margin: 0 2vh;" (click)="updateDevice()">Update Device</button>
         <button (click)="addShelfPosition()">Add Shelf Position</button>
+        <button style="margin: 0 2vh;" (click)="deleteDevice()">Delete Device</button>
     </div>
 </div>

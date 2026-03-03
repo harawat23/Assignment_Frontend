@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { API_ENDPOINTS } from '../api.config';
 import { Observable } from 'rxjs';
-import { DeviceModel } from '../models/Device';
 import { ShelfModel } from '../models/Shelf';
 
 @Injectable({
@@ -25,5 +24,16 @@ export class ShelfService {
 
     saveShelf(shelfName:string,partNumber:string):Observable<ShelfModel>{
         return this.http.post<ShelfModel>(API_ENDPOINTS.shelf.save,{shelfName:shelfName,partNumber:partNumber});
+    }
+
+    updateShelf(id:string,shelfName:string,partNumber:string){
+        const requestBody={"shelfName":shelfName,"partNumber":partNumber};
+        const headers={'Content-Type': 'application/json' };
+
+        return this.http.put<ShelfModel>(API_ENDPOINTS.shelf.updateById(id),requestBody);
+    }
+
+    deleteShelf(id:string){
+        return this.http.delete<boolean>(API_ENDPOINTS.shelf.deleteById(id));
     }
 }

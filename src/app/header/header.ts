@@ -12,6 +12,6 @@ export class Header {
   routes: Route[];
 
   constructor(private router: Router) {
-    this.routes = this.router.config.filter(route => route.path !== '**' && route.path !== 'device-summary/:deviceId');
+    this.routes = this.router.config.filter(route => route.path !== '**' && route.path !== 'device-summary/:deviceId' && route.path !== 'shelf-summary/:shelfId');
   }
 }

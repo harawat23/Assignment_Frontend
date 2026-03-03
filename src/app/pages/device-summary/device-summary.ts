@@ -4,6 +4,9 @@ import { DevicesService } from '../../services/devices.service';
 import { ActivatedRoute } from '@angular/router';
 import { ShelfPosition } from '../../models/ShelfPosition';
 import { ShelfPositionService } from '../../services/shelfposition.service';
+import { RegularExpressionLiteralExpr } from '@angular/compiler';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-device-update',
@@ -28,7 +31,8 @@ export class DeviceSummary {
   constructor(
     private deviceService: DevicesService,
     private shelfPositionService: ShelfPositionService,
-    private router: ActivatedRoute
+    private router: ActivatedRoute,
+    private dialog: MatDialog
   ) { }
 
   validateDeviceForm(): boolean {
@@ -135,7 +139,7 @@ export class DeviceSummary {
     }
   }
 
-  detachShelf(index: number,shelf:string) {
+  detachShelf(index: number, shelf: string) {
     const shelfPosition = this.shelfPositions() as ShelfPosition[];
     this.shelfPositionService.detachShelf(shelfPosition[index].shelfPosId, shelf).subscribe({
       next: (updatedShelf: ShelfPosition) => {
@@ -152,46 +156,82 @@ export class DeviceSummary {
     });
   }
 
-  addShelfPosition(){
-    if (this.device()!==null){
-      const id=this.device()?.deviceId as string;
+  addShelfPosition() {
+    if (this.device() !== null) {
+      const id = this.device()?.deviceId as string;
       this.shelfPositionService.addShelfPosition(id).subscribe({
-        next:(sp:ShelfPosition)=>{
-          const shelfPosition=this.shelfPositions() as ShelfPosition [];
+        next: (sp: ShelfPosition) => {
+          const shelfPosition = this.shelfPositions() as ShelfPosition[];
           shelfPosition.push(sp);
-          this.shelfPositions.set([... shelfPosition]);
+          this.shelfPositions.set([...shelfPosition]);
           console.log(sp);
 
-          const d=this.device() as DeviceModel;
+          const d = this.device() as DeviceModel;
           this.fetchDeviceDetails(d.deviceId);
         },
-        error:(error)=>{
-          console.log("failed to add device : ",error);
+        error: (error) => {
+          console.log("failed to add device : ", error);
         }
       });
-    }else{
+    } else {
       console.log("device is null");
     }
   }
-  deleteShelf(index:number){
-    const shelfPosition=this.shelfPositions() as ShelfPosition[];
-    const del=shelfPosition[index];
-    const d=this.device() as DeviceModel;
+
+  deleteShelf(index: number) {
+    const shelfPosition = this.shelfPositions() as ShelfPosition[];
+    const del = shelfPosition[index];
+    const d = this.device() as DeviceModel;
 
     this.shelfPositionService.deleteShelf(shelfPosition[index].shelfPosId).subscribe({
-      next:(successfully:Boolean)=>{
-        if (!successfully){
+      next: (successfully: Boolean) => {
+        if (!successfully) {
           console.log("data deleted successfully")
           this.fetchDeviceDetails(d.deviceId);
 
-          const s=this.device()?.shelfPosition as ShelfPosition[];
+          const s = this.device()?.shelfPosition as ShelfPosition[];
 
-          this.shelfPositions.set([... s]);
+          this.shelfPositions.set([...s]);
         }
       },
-      error:(error)=>{
-        console.log("failed to delete : ",error);
+      error: (error) => {
+        console.log("failed to delete : ", error);
       }
     });
   }
+
+  deleteDevice() {
+    if (this.device() !== null) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent);
+
+      dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          const d = this.device() as DeviceModel;
+          this.deviceService.deleteDevice(d.deviceId).subscribe({
+            next: (deleted: boolean) => {
+              if (!deleted) {
+                alert('Device deleted successfully');
+                this.device.set(null); 
+                this.shelfPositions.set(null); 
+                this.newDevice.set({
+                  deviceName: '',
+                  deviceType: '',
+                  buildingName: '',
+                  partNumber: '',
+                });
+              } else {
+                alert('Device failed to delete');
+              }
+            },
+            error: (error) => {
+              console.error('Failed to delete device', error);
+            },
+          });
+        } else {
+          console.log('Deletion canceled');
+        }
+      });
+    }
+  }
+
 }

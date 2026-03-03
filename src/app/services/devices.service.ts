@@ -40,4 +40,8 @@ export class DevicesService {
 
     return this.http.put<DeviceModel>(API_ENDPOINTS.device.updateById(deviceId), requestBody,{headers});
   }
+
+  deleteDevice(id:string){
+    return this.http.delete<boolean>(API_ENDPOINTS.device.deleteById(id));
+  }
 }
