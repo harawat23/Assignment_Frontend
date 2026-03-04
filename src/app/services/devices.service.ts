@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { API_ENDPOINTS } from '../api.config';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { DeviceModel } from '../models/Device';
+import { pipe, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,8 @@ export class DevicesService {
   private readonly devicesSubject = new BehaviorSubject<DeviceModel[]>([]);
   public readonly devices$ = this.devicesSubject.asObservable();
 
-  private readonly numberOfDevicesSubject=new BehaviorSubject<number>(0);
-  public readonly numberOfDevices$=this.numberOfDevicesSubject.asObservable();
+  private readonly numberOfDevicesSubject = new BehaviorSubject<number>(0);
+  public readonly numberOfDevices$ = this.numberOfDevicesSubject.asObservable();
 
   constructor(http: HttpClient) {
     this.http = http;
@@ -47,24 +48,24 @@ export class DevicesService {
     this.devicesSubject.next(Array.from(mergedMap.values()));
   }
 
-  updateNumberOfDevices(){
+  updateNumberOfDevices() {
     this.http.get<number>(API_ENDPOINTS.device.getNumberOfDevices).pipe(
-      tap((n)=>{this.numberOfDevicesSubject.next(n);})
+      tap((n) => { this.numberOfDevicesSubject.next(n); })
     ).subscribe();
   }
 
   getAllDevices(pageNum: number): Observable<DeviceModel[]> {
     return this.http.get<DeviceModel[]>(API_ENDPOINTS.device.getDevices(pageNum)).pipe(
-      tap((devices) => { this.devicesSubject.next(devices);this.updateNumberOfDevices() })
+      tap((devices) => { this.devicesSubject.next(devices); this.updateNumberOfDevices() })
     );
   }
 
   getDeviceById(id: string): Observable<DeviceModel> {
-    return this.http.get<DeviceModel>(API_ENDPOINTS.device.byId(id)).pipe(tap((device)=>{this.update_insert_device(device);}));
+    return this.http.get<DeviceModel>(API_ENDPOINTS.device.byId(id)).pipe(tap((device) => { this.update_insert_device(device); }));
   }
 
   saveDevices(deviceName: string, deviceType: string, buildingName: string, partNumber: string): Observable<DeviceModel> {
-    return this.http.post<DeviceModel>(API_ENDPOINTS.device.save, { deviceName: deviceName, deviceType: deviceType, buildingName: buildingName, partNumber: partNumber }).pipe(tap((createdDevice)=>{this.update_insert_device(createdDevice);this.updateNumberOfDevices();}))
+    return this.http.post<DeviceModel>(API_ENDPOINTS.device.save, { deviceName: deviceName, deviceType: deviceType, buildingName: buildingName, partNumber: partNumber }).pipe(tap((createdDevice) => { this.update_insert_device(createdDevice); this.updateNumberOfDevices(); }))
   }
 
   updateDevice(deviceId: string, deviceName: string, deviceType: string, buildingName: string, partNumber: string): Observable<DeviceModel> {
@@ -79,18 +80,39 @@ export class DevicesService {
 
     const headers = { 'Content-Type': 'application/json' };
 
-    return this.http.put<DeviceModel>(API_ENDPOINTS.device.updateById(deviceId), requestBody, { headers }).pipe(tap((updatedDvice)=>{this.update_insert_device(updatedDvice);}));
+    return this.http.put<DeviceModel>(API_ENDPOINTS.device.updateById(deviceId), requestBody, { headers }).pipe(tap((updatedDvice) => { this.update_insert_device(updatedDvice); }));
   }
 
   deleteDevice(id: string) {
-    return this.http.delete<boolean>(API_ENDPOINTS.device.deleteById(id)).pipe(tap((isDeleted)=>{
-      if(!isDeleted){
+    return this.http.delete<boolean>(API_ENDPOINTS.device.deleteById(id)).pipe(tap((isDeleted) => {
+      if (!isDeleted) {
         return;
       }
 
-      const filteredDevices=this.devicesSubject.value.filter((device)=>device.deviceId!==id);
+      const filteredDevices = this.devicesSubject.value.filter((device) => device.deviceId !== id);
       this.devicesSubject.next(filteredDevices);
       this.updateNumberOfDevices();
     }));
+  }
+
+  searchDevices(searchType: string, searchValue: string): Observable<DeviceModel[]> {
+    if (searchType === "deviceId") {
+      const url = API_ENDPOINTS.device.byId(searchValue);
+      return this.http.get<DeviceModel>(url).pipe(
+        map((device) => [device])
+      );
+    } else if (searchType === "deviceName") {
+      const url = API_ENDPOINTS.device.getByDeviceName(searchValue);
+      return this.http.get<DeviceModel[]>(url);
+    } else if (searchType === "deviceType") {
+      const url = API_ENDPOINTS.device.getByDeviceType(searchValue);
+      return this.http.get<DeviceModel[]>(url);
+    } else if (searchType === "buildingName") {
+      const url = API_ENDPOINTS.device.getByBuildingName(searchValue);
+      return this.http.get<DeviceModel[]>(url);
+    } else {
+      const url = API_ENDPOINTS.device.getDeviceByPartNumber(searchValue)
+      return this.http.get<DeviceModel[]>(url);
+    }
   }
 }

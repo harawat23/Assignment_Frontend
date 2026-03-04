@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { API_ENDPOINTS } from '../api.config';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { ShelfModel } from '../models/Shelf';
 
 @Injectable({
@@ -108,4 +108,16 @@ export class ShelfService {
             })
         );
     }
+
+    searchShelves(searchType: string, searchValue: string): Observable<ShelfModel[]> {
+        if (searchType === "shelfId") {
+          const url = API_ENDPOINTS.shelf.byId(searchValue);
+          return this.http.get<ShelfModel>(url).pipe(
+            map((shelf) => [shelf])
+          );
+        } else {
+          const url = API_ENDPOINTS.shelf.getByShelfName(searchValue);
+          return this.http.get<ShelfModel[]>(url);
+        } 
+      }
 }

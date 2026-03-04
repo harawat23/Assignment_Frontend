@@ -3,6 +3,7 @@ import { ShelfService } from '../../services/shelf.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ShelfModel } from '../../models/Shelf';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-shelf',
@@ -11,19 +12,19 @@ import { ShelfModel } from '../../models/Shelf';
   styleUrl: './shelf.css',
 })
 export class Shelf {
-  shelfData = signal<ShelfModel | null>(null);
+  shelfData = signal<ShelfModel[] | null>(null);
   errorMessage = "";
-  shelfId = signal("");
   loading = signal(false);
-
-  constructor(private shelfService: ShelfService) {
+  searchValue=signal('');
+  searchType=signal('shelfId')
+  constructor(private shelfService: ShelfService,public router:Router) {
 
   }
 
-  onSubmit() {
+  onSearch() {
     this.loading.set(true);
-    this.shelfService.getDeviceById(this.shelfId()).subscribe({
-      next: (result: ShelfModel) => {
+    this.shelfService.searchShelves(this.searchType(),this.searchValue()).subscribe({
+      next: (result: ShelfModel[]) => {
         console.log(result);
         this.shelfData.set(result);
         this.loading.set(false);
@@ -36,8 +37,15 @@ export class Shelf {
     });
   }
 
-  setValue(val: string) {
-    this.shelfId.set(val);
-    console.log(this.shelfId());
+  navigateToShelfSummaryPage(id:string){
+    this.router.navigate(['/shelf-summary',id]);
+  }
+
+  onSearchTypeChange(event:Event){
+    const target = event.target as HTMLSelectElement; 
+    if (target) {
+      this.searchType.set(target.value); 
+      console.log('Search type changed to:', this.searchType);
+    }
   }
 }

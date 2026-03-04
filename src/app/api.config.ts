@@ -9,7 +9,9 @@ export const API_ENDPOINTS ={
         getDevices:(pageNum:number)=>`${API_BASE_URL}/device/fetchAll/${pageNum}`,
         getNumberOfDevices:`${API_BASE_URL}/device/getNumberOfDevices`,
         getByBuildingName:(buildingName:string)=>`${API_BASE_URL}/device/byBuildingName/${buildingName}`,
-        getDeviceByPartNumber:(partNumber:string)=>`${API_BASE_URL}/device//byPartNumber/${partNumber}`
+        getDeviceByPartNumber:(partNumber:string)=>`${API_BASE_URL}/device/byPartNumber/${partNumber}`,
+        getByDeviceType:(deviceType:string)=>`${API_BASE_URL}/device/byDeviceType/${deviceType}`,
+        getByDeviceName:(deviceName:string)=>`${API_BASE_URL}/device/byDeviceName/${deviceName}`
     },
     shelf:{
         byId: (id:string)=> `${API_BASE_URL}/shelf/byId/${id}`,

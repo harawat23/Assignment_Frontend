@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DevicesService } from '../../services/devices.service';
 import { DeviceModel } from '../../models/Device';
-import { ShelfPosition } from '../../models/ShelfPosition';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-devices',
@@ -13,33 +13,47 @@ import { ShelfPosition } from '../../models/ShelfPosition';
   imports: [CommonModule, FormsModule],
 })
 export class Devices {
-  deviceData = signal<DeviceModel | null>(null);
+  deviceList = signal<DeviceModel[]>([]);
   errorMessage = "";
-  deviceId = signal<string>("");
+  searchType = signal("deviceId"); 
+  searchValue = signal("");
   loading = signal<boolean>(false);
-  shelfPositions = signal<ShelfPosition[] | null>(null);
 
-  constructor(private devicesService: DevicesService) { }
+  constructor(private devicesService: DevicesService,public router:Router) { }
 
-  onSubmit() {
+  onSearch() {
+    if (!this.searchValue().trim()) {
+      this.errorMessage = "Search value cannot be empty.";
+      return;
+    }
+
     this.loading.set(true);
-    this.devicesService.getDeviceById(this.deviceId()).subscribe({
-      next: (result: DeviceModel) => {
-        console.log(result);
-        this.deviceData.set(result);
-        this.loading.set(false);
-        this.shelfPositions.set(this.deviceData()?.shelfPosition || null);
-      },
-      error: (error) => {
-        console.error("Error occurred:", error);
-        this.errorMessage = "Failed to fetch device data.";
-        this.loading.set(false);
-      },
-    });
+    this.devicesService
+      .searchDevices(this.searchType(), this.searchValue())
+      .subscribe({
+        next: (result: DeviceModel[]) => {
+          console.log(result);
+          this.deviceList.set(result);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error("Error occurred:", error);
+          this.errorMessage = "Failed to fetch device data.";
+          this.loading.set(false);
+        },
+      });
   }
 
-  setValue(val: string) {
-    this.deviceId.set(val);
-    console.log(this.deviceId());
+  navigateToDeviceSummaryPage(deviceId: string) {
+    console.log(`Navigating to device summary page for Device ID: ${deviceId}`);
+    this.router.navigate(['/device-summary', deviceId]);
+  }
+
+  onSearchTypeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement; 
+    if (target) {
+      this.searchType.set(target.value); 
+      console.log('Search type changed to:', this.searchType);
+    }
   }
 }
