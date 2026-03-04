@@ -2,18 +2,24 @@ export const API_BASE_URL="http://localhost:8080";
 
 export const API_ENDPOINTS ={
     device:{
-        byId: (id: string)=> `${API_BASE_URL}/device/${id}`,
+        byId: (id: string)=> `${API_BASE_URL}/device/byId/${id}`,
         save:`${API_BASE_URL}/device/save`,
         updateById:(id:string)=>`${API_BASE_URL}/device/${id}`,
         deleteById:(id:string)=> `${API_BASE_URL}/device/${id}`,
-        getDevices:(pageNum:number)=>`${API_BASE_URL}/device/fetchAll/${pageNum}`
+        getDevices:(pageNum:number)=>`${API_BASE_URL}/device/fetchAll/${pageNum}`,
+        getNumberOfDevices:`${API_BASE_URL}/device/getNumberOfDevices`,
+        getByBuildingName:(buildingName:string)=>`${API_BASE_URL}/device/byBuildingName/${buildingName}`,
+        getDeviceByPartNumber:(partNumber:string)=>`${API_BASE_URL}/device//byPartNumber/${partNumber}`
     },
     shelf:{
-        byId: (id:string)=> `${API_BASE_URL}/shelf/${id}`,
+        byId: (id:string)=> `${API_BASE_URL}/shelf/byId/${id}`,
         save: `${API_BASE_URL}/shelf/save`,
         deleteById: (id: string)=>`${API_BASE_URL}/shelf/delete/${id}`,
         updateById: (id:string)=>`${API_BASE_URL}/shelf/update/${id}`,
-        getShelfs:(pageNum:number)=>`${API_BASE_URL}/shelf/fetchAll/${pageNum}`
+        getShelfs:(pageNum:number)=>`${API_BASE_URL}/shelf/fetchAll/${pageNum}`,
+        getNumberOfShelves:`${API_BASE_URL}/shelf/getNumberOfShelves`,
+        getByPartNumber:(partNumber:string)=>`${API_BASE_URL}/shelf/byPartNumber/${partNumber}`,
+        getByShelfName:(shelfName:string)=>`${API_BASE_URL}/shelf/byShelfName/${shelfName}`
     },
     shelfPosition:{
         byId:(id:number)=>`${API_BASE_URL}/shelfposition/${id}`,
