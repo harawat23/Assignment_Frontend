@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ShelfModel } from '../../models/Shelf';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-shelf',
@@ -29,9 +30,8 @@ export class Shelf {
         this.shelfData.set(result);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error("Error occurred:", error);
-        this.errorMessage = "Failed to fetch device data.";
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
         this.loading.set(false);
       },
     });

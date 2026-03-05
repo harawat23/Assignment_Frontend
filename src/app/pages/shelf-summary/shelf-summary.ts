@@ -4,6 +4,7 @@ import { ShelfService } from '../../services/shelf.service';
 import { ShelfModel } from '../../models/Shelf';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-shelf-summary',
@@ -28,8 +29,8 @@ export class ShelfSummary {
           this.getShelfbyId(params["shelfId"]);
         }
       },
-      error: (error) => {
-        console.log(error);
+      error: (error:HttpErrorResponse) => {
+        console.log(error.error.message);
       }
     });
   }
@@ -48,8 +49,8 @@ export class ShelfSummary {
           console.log("updated successfuly");
           
         },
-        error: (error) => {
-          console.error(error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         }
       })
     }
@@ -65,8 +66,8 @@ export class ShelfSummary {
         s.shelfName = this.shelfData()?.shelfName as string;
         
       },
-      error: (error) => {
-        console.error("Error occurred:", error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       },
     });
   }
@@ -94,14 +95,14 @@ export class ShelfSummary {
                   alert("failed to delete shelf");
                 }
               },
-              error: (error) => {
-                console.log("failed to delete : ", error);
+              error: (error:HttpErrorResponse) => {
+                alert(error.error.message);
               }
             })
           }
         },
-        error: (error) => {
-          console.log(error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         }
       })
     }

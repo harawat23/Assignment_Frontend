@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { DeviceModel } from '../../models/Device';
 import { DevicesService } from '../../services/devices.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-device-creation',
@@ -62,8 +63,8 @@ export class DeviceCreation {
           this.newDevice.buildingName.set('');
           this.newDevice.partNumber.set('');
         },
-        error: (error) => {
-          console.error('Error saving device:', error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         },
       });
     }

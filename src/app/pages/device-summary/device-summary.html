@@ -111,7 +111,7 @@
                     </td>
                     @if (shelf.shelfOutput && shelf.shelfOutput.shelfId){
                     <td>
-                        {{shelf.shelfOutput.partNumber}}
+                        {{shelf.shelfOutput.shelfId}}
                     </td>
                     <td>
                         {{shelf.shelfOutput.shelfName}}
@@ -129,6 +129,7 @@
                         <button (click)="detachShelf($index,shelf.shelfOutput.shelfId)">
                             Detach Shelf
                         </button>
+                        <div style="color: green;">{{shelf.shelfOutput.shelfName}}</div>
                     </td>
                     <td>
                         <button (click)="deleteShelf($index)">

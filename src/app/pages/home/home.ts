@@ -5,6 +5,7 @@ import { DevicesService } from '../../services/devices.service';
 import { ShelfService } from '../../services/shelf.service';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -82,8 +83,8 @@ export class Home {
         console.log(result);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error(error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       }
     })
   }
@@ -151,8 +152,8 @@ export class Home {
             partNumber: '',
           });
         },
-        error: (error) => {
-          console.error('Error saving device:', error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         },
       });
     }
@@ -169,8 +170,8 @@ export class Home {
           this.newShelf.partNumber.set('');
         }
       },
-      error: (error) => {
-        console.error("error Saving the shelf:", error)
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       }
     })
   }

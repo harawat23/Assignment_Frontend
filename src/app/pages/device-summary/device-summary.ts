@@ -7,6 +7,7 @@ import { ShelfPositionService } from '../../services/shelfposition.service';
 import { RegularExpressionLiteralExpr } from '@angular/compiler';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-device-update',
@@ -71,8 +72,8 @@ export class DeviceSummary {
           console.log('Device updated successfully:', result);
           this.device.set(result);
         },
-        error: (error) => {
-          console.error('Error updating device:', error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         },
       });
     } else {
@@ -92,8 +93,8 @@ export class DeviceSummary {
           console.error('deviceId parameter is missing');
         }
       },
-      error: (error) => {
-        console.error('Error fetching route params:', error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       },
     });
   }
@@ -111,8 +112,8 @@ export class DeviceSummary {
         this.shelfPositions.set(device.shelfPosition || []);
         console.log('Device details fetched:', device);
       },
-      error: (error) => {
-        console.error('Error fetching device:', error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       },
     });
   }
@@ -132,8 +133,8 @@ export class DeviceSummary {
 
           this.getForm.set(false);
         },
-        error: (error) => {
-          console.error('Error attaching shelf:', error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         },
       });
     }
@@ -150,8 +151,8 @@ export class DeviceSummary {
         }
         console.log('Shelf detached successfully:', updatedShelf);
       },
-      error: (error) => {
-        console.error('Error attaching shelf:', error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       },
     });
   }
@@ -169,8 +170,8 @@ export class DeviceSummary {
           const d = this.device() as DeviceModel;
           this.fetchDeviceDetails(d.deviceId);
         },
-        error: (error) => {
-          console.log("failed to add device : ", error);
+        error: (error:HttpErrorResponse) => {
+          alert(error.error.message);
         }
       });
     } else {
@@ -194,8 +195,8 @@ export class DeviceSummary {
           this.shelfPositions.set([...s]);
         }
       },
-      error: (error) => {
-        console.log("failed to delete : ", error);
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       }
     });
   }
@@ -223,8 +224,8 @@ export class DeviceSummary {
                 alert('Device failed to delete');
               }
             },
-            error: (error) => {
-              console.error('Failed to delete device', error);
+            error: (error:HttpErrorResponse) => {
+              alert(error.error.message);
             },
           });
         } else {
@@ -233,5 +234,4 @@ export class DeviceSummary {
       });
     }
   }
-
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DevicesService } from '../../services/devices.service';
 import { DeviceModel } from '../../models/Device';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-devices',
@@ -36,9 +37,9 @@ export class Devices {
           this.deviceList.set(result);
           this.loading.set(false);
         },
-        error: (error) => {
+        error: (error:HttpErrorResponse) => {
           console.error("Error occurred:", error);
-          this.errorMessage = "Failed to fetch device data.";
+          alert(error.error.message);
           this.loading.set(false);
         },
       });

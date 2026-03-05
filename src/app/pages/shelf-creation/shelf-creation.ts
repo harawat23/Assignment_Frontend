@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ShelfModel } from '../../models/Shelf';
 import { ShelfService } from '../../services/shelf.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-shelf-creation',
@@ -44,8 +45,8 @@ export class ShelfCreation {
           this.newShelf.partNumber.set('');
         }
       },
-      error: (error) => {
-        console.error("error Saving the shelf:", error)
+      error: (error:HttpErrorResponse) => {
+        alert(error.error.message);
       }
     })
   }
