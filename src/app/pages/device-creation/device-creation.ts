@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { DeviceModel } from '../../models/Device';
 import { DevicesService } from '../../services/devices.service';
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-device-creation',
   imports: [],
@@ -23,7 +23,7 @@ export class DeviceCreation {
     partNumber: signal(''),
   };
 
-  constructor(private deviceService:DevicesService){}
+  constructor(private deviceService:DevicesService,private cdr:ChangeDetectorRef){}
 
   validateDeviceForm(): boolean {
     const errors: any = {};

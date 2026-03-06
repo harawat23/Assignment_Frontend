@@ -27,7 +27,7 @@
                     <div class="form-group mb-3">
                         <label for="numberOfShelvesInput" class="form-label">Number of Shelves</label>
                         <input type="text" id="numberOfShelvesInput" class="form-control"
-                            [value]="this.device()?.numberOfShelfPositions || ''" readonly />
+                            [value]="this.device()?.numberOfShelfPositions || 0" readonly />
                     </div>
                 </td>
                 <td>
@@ -114,7 +114,7 @@
                         {{shelf.shelfOutput.shelfId}}
                     </td>
                     <td>
-                        {{shelf.shelfOutput.shelfName}}
+                        {{shelf.shelfOutput.partNumber}}
                     </td>
                     <td>
                         {{shelf.shelfOutput.shelfName}}

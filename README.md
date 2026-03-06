@@ -1,59 +1,123 @@
-# AssignmentFrontend
+Key Features Implemented
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+1. Device Management
 
-## Development server
 
-To start a local development server, run:
+Device Creation:
 
-```bash
-ng serve
-```
+Users can create a new device by providing details such as device name, type, building name, and part number.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Validation checks ensure mandatory fields are filled before submission.
 
-## Code scaffolding
+The saveDevices method in the DevicesService handles device creation and updates the device list dynamically.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
-```bash
-ng generate component component-name
-```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Device Update:
 
-```bash
-ng generate --help
-```
+Users can update the details of an existing device, including its name, type, building name, and part number.
 
-## Building
+The updateDevice method ensures the device data is updated both in the backend and the local state.
 
-To build the project run:
 
-```bash
-ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Device Deletion:
 
-## Running unit tests
+Devices can be deleted after user confirmation through a dialog box.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+The deleteDevice method removes the device from the backend and updates the local device list.
 
-```bash
-ng test
-```
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+Device Search:
 
-```bash
-ng e2e
-```
+Users can search devices by various criteria such as device ID, name, type, building name, or part number.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+The search functionality dynamically updates the device list based on the search results.
 
-## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+Device Summary Page:
+
+A detailed view of a specific device, including its shelf positions, is provided.
+
+Users can update device details, add new shelf positions,attach/detach shelfs or delete the device from this page.
+
+
+
+
+2. Shelf Management
+
+
+Shelf Creation:
+
+Users can create new shelves by providing the shelf name and part number.
+
+Validation checks ensure required fields are entered before submission.
+
+The saveShelf method in the ShelfService handles shelf creation and updates the local shelf list.
+
+
+
+Shelf Update:
+
+Users can update the shelf name and part number.
+
+The updateShelf method ensures the shelf data is updated in the backend and local state.
+
+
+
+Shelf Deletion:
+
+Shelves can be deleted after user confirmation through a dialog box.
+
+The deleteShelf method removes the shelf from the backend and updates the local shelf list.
+
+
+
+Shelf Search:
+
+Users can search shelves by shelf ID or name.
+
+The search functionality dynamically updates the shelf list based on the search results.
+
+
+
+Shelf Summary Page:
+
+A detailed view of a specific shelf is provided, showing its ID, name, part number, creation date, and update date.
+
+Users can update or delete the shelf from this page.
+
+
+
+
+3. Shelf Position Management
+
+
+Add Shelf Positions:
+
+Users can add new shelf positions to a device from the device summary page.
+
+The addShelfPosition method creates a new shelf position in the backend and updates the local state.
+
+
+
+Attach/Detach Shelves:
+
+Users can attach or detach shelves to/from a shelf position.
+
+The attachShelf and detachShelf methods handle these operations and dynamically update the shelf position list.
+
+
+
+Delete Shelf Positions:
+
+Shelf positions can be deleted from the device summary page.
+
+The deleteShelf method ensures the removal of the shelf position from the backend and local state.
+
+
+4. Home Page
+
+Implementation of real time updates using RxJS. Using RxJS one can see the updates without refreshing the page (except deletion of shelf or device).
