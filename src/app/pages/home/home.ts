@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DeviceModel } from '../../models/Device';
 import { ShelfModel } from '../../models/Shelf';
 import { DevicesService } from '../../services/devices.service';
@@ -6,6 +6,7 @@ import { ShelfService } from '../../services/shelf.service';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +14,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./home.css'],
 })
 export class Home {
+  private readonly destroyRef=inject(DestroyRef);
+
   page_device = signal(0);
   page_shelf = signal(0);
   loading = signal(false);
@@ -48,21 +51,21 @@ export class Home {
   }
 
   ngOnInit() {
-    this.shelfService.shelfData$.subscribe((data) => {
+    this.shelfService.shelfData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       console.log("change detected");
       this.shelfList.set(data);
       console.log(data);
     });
 
-    this.deviceService.devices$.subscribe((devices) => {
+    this.deviceService.devices$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((devices) => {
       this.deviceList.set(devices);
     });
 
-    this.deviceService.numberOfDevices$.subscribe((count) => {
+    this.deviceService.numberOfDevices$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((count) => {
       this.totalDevices.set(count);
     });
 
-    this.shelfService.numberOfShelves$.subscribe((count) => {
+    this.shelfService.numberOfShelves$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((count) => {
       this.totalShelves.set(count);
     })
 

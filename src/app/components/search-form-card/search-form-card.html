@@ -1,0 +1,25 @@
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3 class="card-title">{{ title() }}</h3>
+        <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+            @if (options().length > 0) {
+            <div class="form-group mb-3">
+                <label [for]="inputId() + '-criteria'" class="form-label">{{ selectLabel() }}</label>
+                <select class="form-control" [id]="inputId() + '-criteria'" formControlName="selectedOption">
+                    @for (option of options(); track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                    }
+                </select>
+            </div>
+            }
+            <div class="form-group mb-3">
+                <label [for]="inputId()" class="form-label">{{ label() }}</label>
+                <input type="text" [id]="inputId()" class="form-control" formControlName="value"
+                    [placeholder]="placeholder()" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                {{ submitLabel() }}
+            </button>
+        </form>
+    </div>
+</div>

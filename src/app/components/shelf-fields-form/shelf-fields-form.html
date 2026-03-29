@@ -1,0 +1,70 @@
+<div class="card" style="width: 100%; margin: 2vh auto; padding: 2vh; box-shadow: 0 4px 8px rgb(0 0 0 / 10%);">
+    <h2 style="text-align: center;">{{ title() }}</h2>
+ 
+    <form [formGroup]="shelfForm" (ngSubmit)="onSubmit()">
+        @if (metadata()) {
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="shelfIdInput" class="form-label">Shelf ID</label>
+                            <input type="text" id="shelfIdInput" class="form-control"
+                                [value]="metadata()?.shelfId || ''" readonly />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="shelfCreatedAt" class="form-label">Created At</label>
+                            <input type="text" id="shelfCreatedAt" class="form-control"
+                                [value]="metadata()?.createdAt || ''" readonly />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="shelfUpdatedAt" class="form-label">Updated At</label>
+                            <input type="text" id="shelfUpdatedAt" class="form-control"
+                                [value]="metadata()?.updatedAt || ''" readonly />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="deviceInput" class="form-label">Connected Device ID</label>
+                            <input type="text" id="deviceInput" class="form-control"
+                                [value]="metadata()?.connectedDevice || 'None'" readonly />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        }
+ 
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="shelfNameInput" class="form-label">Shelf Name</label>
+                            <input type="text" id="shelfNameInput" class="form-control" placeholder="Enter Shelf Name"
+                                formControlName="shelfName" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group mb-3">
+                            <label for="partNumberInput" class="form-label">Part Number</label>
+                            <input type="text" id="partNumberInput" class="form-control" placeholder="Enter Part Number"
+                                formControlName="partNumber" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+ 
+        <div class="shelf-form-actions">
+            <button type="submit">{{ submitLabel() }}</button>
+            @if (showDeleteButton()) {
+            <button type="button" (click)="onDelete()">Delete Shelf</button>
+            }
+        </div>
+    </form>
+</div>

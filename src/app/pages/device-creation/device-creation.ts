@@ -1,72 +1,62 @@
-import { Component, signal } from '@angular/core';
-import { DeviceModel } from '../../models/Device';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DevicesService } from '../../services/devices.service';
+import { DeviceFieldsForm , DeviceFormValue} from '../../components/device-fields-form/device-fields-form';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
+ 
 @Component({
   selector: 'app-device-creation',
-  imports: [],
+  imports: [DeviceFieldsForm],
   templateUrl: './device-creation.html',
   styleUrl: './device-creation.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeviceCreation {
-  page_device: number = 0;
-  page_shelf: number = 0;
-  loading = signal(false);
-  deviceList = signal<DeviceModel[] | null>(null);
-  deviceOrShelf = signal('device');
-
-  newDevice = {
-    deviceName: signal(''),
-    deviceType: signal(''),
-    buildingName: signal(''),
-    partNumber: signal(''),
-  };
-
-  constructor(private deviceService:DevicesService,private cdr:ChangeDetectorRef){}
-
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly deviceService = inject(DevicesService);
+ 
+  readonly newDevice = signal<DeviceFormValue>({
+    deviceName: '',
+    deviceType: '',
+    buildingName: '',
+    partNumber: '',
+  });
+ 
   validateDeviceForm(): boolean {
-    const errors: any = {};
-    let isValid = true;
-
-    if (!this.newDevice.deviceName().trim()) {
-      errors.deviceName = 'Device Name is required';
-      isValid = false;
-    }
-
-    if (!this.newDevice.deviceType().trim()) {
-      errors.deviceType = 'Device Type is required';
-      isValid = false;
-    }
-
-    if (!this.newDevice.buildingName().trim()) {
-      errors.buildingName = 'Building Name is required';
-      isValid = false;
-    }
-
-    if (!this.newDevice.partNumber().trim()) {
-      errors.partNumber = 'Part Number is required';
-      isValid = false;
-    }
-
-    return isValid;
+    const formValue = this.newDevice();
+    return !!(
+      formValue.deviceName.trim() &&
+      formValue.deviceType.trim() &&
+      formValue.buildingName.trim() &&
+      formValue.partNumber.trim()
+    );
   }
-
-  saveDeviceData() {
+ 
+  saveDeviceData(): void {
     if (this.validateDeviceForm()) {
-
-      this.deviceService.saveDevices(this.newDevice.deviceName(), this.newDevice.buildingName(), this.newDevice.deviceType(), this.newDevice.partNumber()).subscribe({
-        next: (result) => {
-          console.log('Device saved successfully:', result);
-          this.newDevice.deviceName.set('');
-          this.newDevice.deviceType.set('');
-          this.newDevice.buildingName.set('');
-          this.newDevice.partNumber.set('');
-        },
-        error: (error:HttpErrorResponse) => {
-          alert(error.error.message);
-        },
-      });
+      const formValue = this.newDevice();
+      this.deviceService
+        .saveDevices(formValue.deviceName, formValue.deviceType, formValue.buildingName, formValue.partNumber)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (result) => {
+            console.log('Device saved successfully:', result);
+            this.newDevice.set({
+              deviceName: '',
+              deviceType: '',
+              buildingName: '',
+              partNumber: '',
+            });
+          },
+          error: (error:HttpErrorResponse) => {
+            console.error('Error saving device:', error);
+            alert(error.error)
+          },
+        });
     }
+  }
+ 
+  onDeviceChange(updatedDevice: DeviceFormValue): void {
+    this.newDevice.set(updatedDevice);
   }
 }

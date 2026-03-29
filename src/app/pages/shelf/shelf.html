@@ -1,87 +1,56 @@
 <div class="container mt-4">
-  <!-- Input Form -->
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h3 class="card-title">Shelf Search</h3>
-      <form>
-        <div class="form-group mb-3">
-          <label for="searchTypeDropdown" class="form-label">Search By</label>
-          <select id="searchTypeDropdown" class="form-control" [value]="this.searchType()" (change)="onSearchTypeChange($event)">
-            <option value="shelfId">Shelf ID</option>
-            <option value="shelfName">Shelf Name</option>
-          </select>
+    <app-search-form-card [title]="'Shelf Search'" [selectLabel]="'Search Field'" [options]="searchFieldOptions"
+        [selectedOption]="searchField()" [label]="'Search Value'" [inputId]="'shelfSearchInput'"
+        [placeholder]="'Enter search text'" [value]="searchValue()" [submitLabel]="'Search'"
+        (selectedOptionChange)="onSearchFieldChange($event)" (valueChange)="onSearchValueChange($event)"
+        (submitSearch)="onSubmit()" />
+ 
+    <div class="mt-4">
+        <h2>Shelf Results</h2>
+        @if (loading()) {
+        <div class="alert alert-info" role="alert">
+            <strong>Loading...</strong> Please wait while we fetch the data.
         </div>
-
-        <div class="form-group mb-3">
-          <label for="searchValueInput" class="form-label">Search Value</label>
-          <input
-            type="text"
-            id="searchValueInput"
-            class="form-control"
-            [value]="this.searchValue()"
-            (input)="this.searchValue.set($event.target.value)"
-            placeholder="Enter Search Value"
-          />
+        } @else {
+        @if (filteredShelves().length === 0) {
+        <div class="alert alert-warning" role="alert">
+            No shelf data available for this search.
         </div>
-
-        <button type="button" class="btn btn-primary" (click)="onSearch()">
-          Search
-        </button>
-      </form>
+        } @else {
+        <div class="card shadow-sm">
+            <div class="card-body table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Shelf ID</th>
+                            <th>Shelf Name</th>
+                            <th>Part Number</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (shelf of filteredShelves(); track shelf.shelfId) {
+                        <tr>
+                            <td (click)="navigate(shelf.shelfId)">{{ shelf.shelfId }}</td>
+                            <td>{{ shelf.shelfName }}</td>
+                            <td>{{ shelf.partNumber }}</td>
+                            <td>{{ shelf.createdAt }}</td>
+                            <td>{{ shelf.updatedAt }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        }
+        }
+ 
+        @if (errorMessage()) {
+        <div class="alert alert-danger mt-3" role="alert">
+            {{ errorMessage() }}
+        </div>
+        }
     </div>
-  </div>
-
-
-  <div class="mt-4">
-    <h2>Search Results</h2>
-
-    @if(loading()){
-    <div class="alert alert-info" role="alert">
-      <strong>Loading...</strong> Please wait while we fetch the data.
-    </div>
-    }
-    @else{
-    @if(shelfData()?.length === 0){
-    <div class="alert alert-warning" role="alert">
-      No devices found for the given search criteria.
-    </div>
-    }@else{
-    <div class="table-scroll-wrapper">
-      <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-          <tr>
-            <th>Device ID</th>
-            <th>Device Type</th>
-            <th>Building Name</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-            <th>Part Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (shelf of shelfData(); track $index) {
-          <tr>
-            <td (click)="navigateToShelfSummaryPage(shelf.shelfId)">
-              {{ shelf.shelfId }}
-            </td>
-            <td>
-                {{shelf.shelfName}}
-            </td>
-            <td>
-                {{shelf.partNumber}}
-            </td>
-            <td>
-                {{shelf.createdAt}}
-            </td>
-            <td>
-                {{shelf.updatedAt}}
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    }
-    }
-  </div>
 </div>
+ 

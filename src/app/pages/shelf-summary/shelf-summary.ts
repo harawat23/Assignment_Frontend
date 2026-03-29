@@ -1,110 +1,159 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ShelfService } from '../../services/shelf.service';
 import { ShelfModel } from '../../models/Shelf';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog';
+import { ShelfService } from '../../services/shelf.service';
+import { ShelfFieldsForm, ShelfFormValue, ShelfMetaData } from '../../components/shelf-fields-form/shelf-fields-form';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'app-shelf-summary',
-  imports: [],
-  templateUrl: './shelf-summary.html',
-  styleUrl: './shelf-summary.css',
+    selector: 'app-shelf-summary',
+    imports: [ShelfFieldsForm],
+    templateUrl: './shelf-summary.html',
+    styleUrl: './shelf-summary.css',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShelfSummary {
-  shelfData = signal<ShelfModel | null>(null);
-  newShelf = signal({
-    partNumber: "",
-    shelfName: ""
-  });
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly shelfService = inject(ShelfService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
 
-  constructor(private router: ActivatedRoute, private shelfService: ShelfService, private dialog: MatDialog) { }
-
-  ngOnInit() {
-    this.router.params.subscribe({
-      next: (params) => {
-        if (params["shelfId"]) {
-          console.log(params["shelfId"]);
-          this.getShelfbyId(params["shelfId"]);
-        }
-      },
-      error: (error:HttpErrorResponse) => {
-        console.log(error.error.message);
-      }
+    readonly shelf = signal<ShelfModel | null>(null);
+    readonly shelfId = signal('');
+    readonly editShelf = signal<ShelfFormValue>({
+        shelfName: '',
+        partNumber: ''
     });
-  }
 
-  updateShelf() {
-    if (this.shelfData() !== null) {
-      this.shelfService.updateShelf(this.shelfData()?.shelfId as string, this.newShelf().shelfName, this.newShelf().partNumber).subscribe({
-        next: (s: ShelfModel) => {
-          const s1 = this.shelfData() as ShelfModel;
-          s1.shelfName = s.shelfName;
-          s1.updatedAt = s.updatedAt;
-          s1.partNumber = s.partNumber;
-          this.shelfData.set(s1);
-          this.newShelf.set({ shelfName: s1.shelfName, partNumber: s1.partNumber });
-          
-          console.log("updated successfuly");
-          
-        },
-        error: (error:HttpErrorResponse) => {
-          alert(error.error.message);
-        }
-      })
-    }
-  }
-
-  getShelfbyId(shelfId: string) {
-    this.shelfService.getDeviceById(shelfId).subscribe({
-      next: (result: ShelfModel) => {
-        this.shelfData.set(result);
-        console.log(this.shelfData());
-        const s = this.newShelf();
-        s.partNumber = this.shelfData()?.partNumber as string;
-        s.shelfName = this.shelfData()?.shelfName as string;
-        
-      },
-      error: (error:HttpErrorResponse) => {
-        alert(error.error.message);
-      },
+    readonly shelfMetadata = signal<ShelfMetaData>({
+        shelfId: '',
+        createdAt: '',
+        updatedAt: '',
+        connectedDevice: null
     });
-  }
 
-  deleteShelf(shelfId: string | undefined) {
-    if (shelfId === undefined) {
-      alert("invalid shelf");
-    } else if (this.shelfData() !== null) {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent);
-      dialogRef.afterClosed().subscribe({
-        next: (confirmed: boolean) => {
-          if (confirmed) {
-            const s = this.shelfData() as ShelfModel;
-            this.shelfService.deleteShelf(shelfId).subscribe({
-              next: (deleted: boolean) => {
-                if (!deleted) {
-                  this.shelfData.set(null);
-                  this.newShelf.set({
-                    shelfName: '',
-                    partNumber: ''
-                  });
-                  
-                  alert('Shelf deleted successfully');
-                } else {
-                  alert("failed to delete shelf");
+    ngOnInit(): void {
+        this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (params) => {
+                const shelfId = params['shelfId'];
+                if (!shelfId) {
+                    console.error('shelfId parameter is missing');
+                    return;
                 }
-              },
-              error: (error:HttpErrorResponse) => {
-                alert(error.error.message);
-              }
-            })
-          }
-        },
-        error: (error:HttpErrorResponse) => {
-          alert(error.error.message);
-        }
-      })
+
+                this.shelfId.set(shelfId);
+                this.fetchShelfDetails(shelfId);
+            },
+            error: (error) => {
+                console.error('Error fetching route params:', error);
+            },
+        });
     }
-  }
+
+    updateShelf(): void {
+        const currentShelf = this.shelf();
+        const formValue = this.editShelf();
+
+        if (!currentShelf || !this.validateShelfForm()) {
+            console.error('Validation failed or shelf is not loaded');
+            return;
+        }
+
+        this.shelfService
+            .updateShelf(currentShelf.shelfId, formValue.shelfName, formValue.partNumber)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (updatedShelf) => {
+                    this.shelf.set(updatedShelf);
+                    this.editShelf.set({
+                        shelfName: updatedShelf.shelfName,
+                        partNumber: updatedShelf.partNumber,
+                    });
+                    // console.log(this.shelf());
+                    this.updateMetadata(updatedShelf);
+                },
+                error: (error) => {
+                    console.error('Error updating shelf:', error);
+                },
+            });
+    }
+
+    deleteShelf(): void {
+        const currentShelf = this.shelf();
+        console.log("delete clicked")
+        if (!currentShelf) {
+            console.error('Shelf is not loaded');
+            return;
+        }
+
+        this.shelfService
+            .deleteShelf(currentShelf.shelfId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (deleted: boolean) => {
+                    if (!deleted) {
+                        this.shelfMetadata.set({
+                            shelfId: '',
+                            createdAt: '',
+                            updatedAt: '',
+                            connectedDevice: ''
+                        });
+                        this.editShelf.set({
+                            shelfName: '',
+                            partNumber: ''
+                        });
+
+                        alert('Shelf deleted successfully');
+                    } else {
+                        alert("failed to delete shelf");
+                    }
+                },
+                error: (error: HttpErrorResponse) => {
+                    alert(error.error.message);
+                }
+
+            });
+    }
+
+    onShelfChange(updatedShelf: ShelfFormValue): void {
+        this.editShelf.set(updatedShelf);
+    }
+
+    private fetchShelfDetails(shelfId: string): void {
+        this.shelfService
+            .getDeviceById(shelfId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (shelf) => {
+                    this.shelf.set(shelf);
+                    console.log(shelf)
+                    this.editShelf.set({
+                        shelfName: shelf.shelfName,
+                        partNumber: shelf.partNumber,
+                    });
+                    this.updateMetadata(shelf);
+                },
+                error: (error) => {
+                    console.error('Error fetching shelf:', error);
+                },
+            });
+    }
+
+    private validateShelfForm(): boolean {
+        const formValue = this.editShelf();
+        return !!(formValue.shelfName.trim() && formValue.partNumber.trim());
+    }
+
+    private updateMetadata(shelf: ShelfModel): void {
+        console.log(shelf.device);
+        this.shelfMetadata.set({
+            createdAt: shelf.createdAt,
+            updatedAt: shelf.updatedAt,
+            shelfId: shelf.shelfId,
+            connectedDevice: shelf.device?.deviceId || ''
+        });
+
+        // console.log(this.shelfMetadata().connectedDevice)
+    }
 }

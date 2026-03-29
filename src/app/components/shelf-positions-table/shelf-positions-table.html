@@ -1,0 +1,76 @@
+<div class="table-responsive">
+    <h2>Shelf Positions</h2>
+ 
+    @if (shelfPositions()?.length) {
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Shelf Position ID</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>Shelf ID</th>
+                <th>Part Number</th>
+                <th>Shelf Name</th>
+                <th>Shelf Created At</th>
+                <th>Shelf Updated At</th>
+                @if (interactive()) {
+                <th>Attach/Detach Shelf</th>
+                <th>Delete Shelf</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (shelf of shelfPositions() || []; track shelf.shelfPosId; let index = $index) {
+            <tr>
+                <td>{{ shelf.shelfPosId }}</td>
+                <td>{{ shelf.createdAt }}</td>
+                <td>{{ shelf.updatedAt }}</td>
+ 
+                @if (shelf.shelfOutput && shelf.shelfOutput.shelfId) {
+                <td>{{ shelf.shelfOutput.shelfId }}</td>
+                <td>{{ shelf.shelfOutput.partNumber }}</td>
+                <td>{{ shelf.shelfOutput.shelfName }}</td>
+                <td>{{ shelf.shelfOutput.createdAt }}</td>
+                <td>{{ shelf.shelfOutput.updatedAt }}</td>
+                @if (interactive()) {
+                <td>
+                    <button type="button" (click)="requestDetach(index, shelf.shelfOutput.shelfId)">
+                        Detach Shelf
+                    </button>
+                </td>
+                <td>
+                    <button type="button" (click)="requestDelete(index)">Delete Shelf</button>
+                </td>
+                }
+                } @else {
+                <td class="not-connected">Not Connected</td>
+                <td class="not-connected">Not Connected</td>
+                <td class="not-connected">Not Connected</td>
+                <td class="not-connected">Not Connected</td>
+                <td class="not-connected">Not Connected</td>
+ 
+                @if (interactive()) {
+                <td>
+                    @if (attachFormIndex() === index) {
+                    <div class="attach-controls">
+                        <input #shelfIdInput type="text" class="form-control" placeholder="Shelf ID" />
+                        <button type="button" (click)="requestAttach(index, shelfIdInput.value)">Attach</button>
+                        <button type="button" (click)="closeAttachForm()">Close</button>
+                    </div>
+                    } @else {
+                    <button type="button" (click)="openAttachForm(index)">Attach Shelf</button>
+                    }
+                </td>
+                <td>
+                    <button type="button" (click)="requestDelete(index)">Delete Shelf</button>
+                </td>
+                }
+                }
+            </tr>
+            }
+        </tbody>
+    </table>
+    } @else {
+    <p>No shelf positions available.</p>
+    }
+</div>
